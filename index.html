@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON NOIR — Creative Agency</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon-cyan: #00f5ff;
+    --neon-pink: #ff0080;
+    --neon-purple: #bf00ff;
+    --dark: #020208;
+    --dark2: #07070f;
+    --dark3: #0d0d1a;
+    --text: #e8e8f0;
+    --text-dim: #9494b0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  #cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, background 0.2s;
+    box-shadow: 0 0 15px var(--neon-cyan), 0 0 30px var(--neon-cyan);
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 40px; height: 40px;
+    border: 1px solid rgba(0,245,255,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s ease;
+  }
+
+  /* CANVAS */
+  #bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 28px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, rgba(2,2,8,0.9) 0%, transparent 100%);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.2em;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 48px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: #b0b0c8;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--neon-cyan);
+    transition: width 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--neon-cyan); }
+  .nav-links a:hover::after { width: 100%; }
+
+  .nav-cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--dark);
+    background: var(--neon-cyan);
+    border: none;
+    padding: 10px 24px;
+    cursor: none;
+    transition: all 0.3s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .nav-cta:hover {
+    background: var(--neon-pink);
+    box-shadow: 0 0 30px var(--neon-pink);
+  }
+
+  /* HERO */
+  #hero {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 60px;
+  }
+
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 12vw, 13rem);
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+  }
+
+  .hero-title span {
+    display: block;
+  }
+
+  .hero-title .outline {
+    -webkit-text-stroke: 1px rgba(255,255,255,0.15);
+    color: transparent;
+  }
+
+  .hero-title .glitch {
+    position: relative;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: glitch 4s infinite;
+  }
+
+  @keyframes glitch {
+    0%, 90%, 100% { clip-path: none; transform: none; }
+    91% { clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%); transform: translate(-3px, 0); }
+    92% { clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%); transform: translate(3px, 0); }
+    93% { clip-path: none; transform: none; }
+    94% { clip-path: polygon(0 10%, 100% 10%, 100% 30%, 0 30%); transform: translate(-2px, 0); }
+    95% { clip-path: none; transform: none; }
+  }
+
+  .hero-sub {
+    margin-top: 40px;
+    max-width: 480px;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-dim);
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+
+  .hero-ctas {
+    margin-top: 48px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 36px;
+    background: transparent;
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: none;
+    transition: all 0.3s;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  }
+
+  .btn-primary:hover {
+    background: var(--neon-cyan);
+    color: var(--dark);
+    box-shadow: 0 0 40px rgba(0,245,255,0.4);
+  }
+
+  .btn-secondary {
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-decoration: none;
+    cursor: none;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-secondary:hover { color: var(--text); }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 48px;
+    left: 60px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    animation: fadeUp 0.8s 1.3s forwards;
+  }
+
+  .scroll-line {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--text-dim));
+    animation: scrollPulse 2s infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  .scroll-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* MARQUEE */
+  .marquee-wrap {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 16px 0;
+    background: rgba(0,245,255,0.02);
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: 0;
+    animation: marquee 20s linear infinite;
+    white-space: nowrap;
+  }
+
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .marquee-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--neon-pink);
+    box-shadow: 0 0 10px var(--neon-pink);
+    flex-shrink: 0;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* SECTIONS */
+  section {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ABOUT */
+  #about {
+    padding: 140px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 100px;
+    align-items: center;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: var(--neon-pink);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 30px; height: 1px;
+    background: var(--neon-pink);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 5vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    margin-bottom: 32px;
+  }
+
+  .section-title .accent {
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .about-text {
+    color: var(--text-dim);
+    line-height: 1.8;
+    font-size: 1rem;
+    margin-bottom: 24px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 48px;
+  }
+
+  .stat-item {
+    border-left: 1px solid rgba(0,245,255,0.2);
+    padding-left: 20px;
+  }
+
+  .stat-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .about-visual {
+    position: relative;
+    height: 500px;
+  }
+
+  .about-img-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--dark3);
+    border: 1px solid rgba(0,245,255,0.1);
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  }
+
+  .about-corner {
+    position: absolute;
+    width: 60px; height: 60px;
+    border-color: var(--neon-cyan);
+    border-style: solid;
+    border-width: 0;
+  }
+
+  #about-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+  }
+
+  /* SERVICES */
+  #services {
+    padding: 140px 60px;
+    background: linear-gradient(180deg, transparent, rgba(0,245,255,0.02) 50%, transparent);
+  }
+
+  .services-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 80px;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .service-card {
+    background: var(--dark2);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s;
+    cursor: none;
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+    transform: scaleX(0);
+    transition: transform 0.4s;
+  }
+
+  .service-card:hover::before { transform: scaleX(1); }
+  .service-card:hover { background: var(--dark3); }
+
+  .service-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    color: rgba(0,245,255,0.06);
+    position: absolute;
+    top: 20px; right: 30px;
+    line-height: 1;
+  }
+
+  .service-icon {
+    width: 48px; height: 48px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+
+  .service-icon svg {
+    width: 100%; height: 100%;
+    stroke: var(--neon-cyan);
+    fill: none;
+    stroke-width: 1.5;
+  }
+
+  .service-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+    transition: color 0.3s;
+  }
+
+  .service-card:hover .service-name { color: var(--neon-cyan); }
+
+  .service-desc {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+
+  .service-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--neon-purple);
+    border: 1px solid rgba(191,0,255,0.3);
+    padding: 4px 10px;
+  }
+
+  /* WORK */
+  #work {
+    padding: 140px 60px;
+  }
+
+  .work-header {
+    margin-bottom: 80px;
+  }
+
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 3px;
+  }
+
+  .work-item {
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    background: var(--dark2);
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  .work-item:nth-child(1) { grid-column: span 7; height: 420px; }
+  .work-item:nth-child(2) { grid-column: span 5; height: 420px; }
+  .work-item:nth-child(3) { grid-column: span 4; height: 340px; }
+  .work-item:nth-child(4) { grid-column: span 4; height: 340px; }
+  .work-item:nth-child(5) { grid-column: span 4; height: 340px; }
+
+  .work-item:hover { transform: scale(0.985); z-index: 2; }
+
+  /* Canvas per card */
+  .work-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+  }
+
+  .work-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, transparent 30%, rgba(2,2,8,0.92) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 32px;
+    transition: background 0.4s;
+  }
+
+  .work-item:hover .work-overlay {
+    background: linear-gradient(160deg, transparent 10%, rgba(2,2,8,0.97) 100%);
+  }
+
+  .work-top {
+    position: absolute;
+    top: 24px; right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .work-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .work-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 8px var(--neon-cyan);
+    animation: blink 2s infinite;
+  }
+
+  @keyframes blink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .work-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.35em;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+
+  .work-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-bottom: 12px;
+    transition: color 0.3s;
+  }
+
+  .work-item:hover .work-title { color: var(--neon-cyan); }
+
+  .work-desc {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    max-width: 320px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.4s 0.05s;
+  }
+
+  .work-item:hover .work-desc {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .work-arrow {
+    position: absolute;
+    bottom: 32px; right: 32px;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(0,245,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translate(4px, 4px);
+    transition: all 0.3s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+
+  .work-item:hover .work-arrow {
+    opacity: 1;
+    transform: translate(0,0);
+    border-color: var(--neon-cyan);
+  }
+
+  .work-arrow svg { stroke: var(--neon-cyan); }
+
+  /* CONTACT */
+  #contact {
+    padding: 140px 60px;
+    background: var(--dark2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #contact::before {
+    content: 'CONTACT';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20vw;
+    color: rgba(0,245,255,0.02);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .contact-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+  }
+
+  .contact-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 8vw, 9rem);
+    line-height: 0.9;
+    margin-bottom: 32px;
+  }
+
+  .contact-sub {
+    color: var(--text-dim);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 56px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .contact-email {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    color: var(--neon-cyan);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(0,245,255,0.3);
+    padding-bottom: 4px;
+    transition: all 0.3s;
+    margin-bottom: 56px;
+    display: block;
+  }
+
+  .contact-email:hover {
+    color: var(--neon-pink);
+    border-color: var(--neon-pink);
+    text-shadow: 0 0 30px var(--neon-pink);
+  }
+
+  .contact-socials {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+  }
+
+  .social-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    cursor: none;
+  }
+
+  .social-link:hover { color: var(--neon-cyan); }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    padding: 32px 60px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--dark); }
+  ::-webkit-scrollbar-thumb { background: var(--neon-cyan); }
+
+  /* HERO VIDEO */
+  #hero-video-wrap {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  #hero-video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0.35;
+    filter: saturate(0.6) brightness(0.7);
+  }
+
+  /* Fallback animated gradient when no video */
+  #hero-video-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 20% 50%, rgba(0,245,255,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 30%, rgba(191,0,255,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 50% 80%, rgba(255,0,128,0.04) 0%, transparent 60%);
+    animation: bgShift 8s ease-in-out infinite alternate;
+    z-index: 1;
+  }
+
+  @keyframes bgShift {
+    0% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.05); }
+  }
+
+  #hero-video-overlay {
+    position: absolute;
+    inset: 0;
+    background: 
+      linear-gradient(180deg, rgba(2,2,8,0.3) 0%, rgba(2,2,8,0.1) 40%, rgba(2,2,8,0.7) 100%),
+      linear-gradient(90deg, rgba(2,2,8,0.6) 0%, transparent 60%);
+    z-index: 2;
+  }
+
+  #hero > *:not(#hero-video-wrap) {
+    position: relative;
+    z-index: 3;
+  }
+
+  /* NOISE OVERLAY */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo">Neon Noir</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta">Start a Project</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <!-- VIDEO BACKGROUND -->
+  <div id="hero-video-wrap">
+    <video id="hero-video" autoplay muted loop playsinline>
+      <!-- Replace src with your video file. Falls back to animated gradient. -->
+      <source src="hero-bg.mp4" type="video/mp4">
+    </video>
+    <div id="hero-video-overlay"></div>
+  </div>
+  <div class="hero-tag">// Est. 2024 — Creative Digital Agency</div>
+  <h1 class="hero-title">
+    <span class="outline">We Build</span>
+    <span class="glitch">Digital</span>
+    <span class="outline">Worlds</span>
+  </h1>
+  <p class="hero-sub">We craft immersive digital experiences that blur the line between art and technology. Bold visuals. Precise code.</p>
+  <div class="hero-ctas">
+    <a href="#work" class="btn-primary">
+      View Our Work
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 8h10M9 4l4 4-4 4"/>
+      </svg>
+    </a>
+    <a href="#contact" class="btn-secondary">Get in touch →</a>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span class="scroll-text">Scroll to explore</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">Brand Identity <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Web Design <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Motion Graphics <span class="marquee-dot"></span></div>
+    <div class="marquee-item">3D Experiences <span class="marquee-dot"></span></div>
+    <div class="marquee-item">UI/UX Design <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Creative Development <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Brand Identity <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Web Design <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Motion Graphics <span class="marquee-dot"></span></div>
+    <div class="marquee-item">3D Experiences <span class="marquee-dot"></span></div>
+    <div class="marquee-item">UI/UX Design <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Creative Development <span class="marquee-dot"></span></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-content">
+    <div class="section-label">About Us</div>
+    <h2 class="section-title reveal">We Are The <span class="accent">Future</span> Of Digital</h2>
+    <p class="about-text reveal">A collective of designers and developers obsessed with pushing the limits of what's possible on the web. Every pixel intentional. Every interaction meaningful.</p>
+    <p class="about-text reveal">We don't just build websites — we craft digital experiences that leave a lasting impression on every visitor.</p>
+    <div class="stats-grid reveal">
+      <div class="stat-item">
+        <div class="stat-number">120+</div>
+        <div class="stat-label">Projects Completed</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">08</div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">40+</div>
+        <div class="stat-label">Happy Clients</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">12</div>
+        <div class="stat-label">Awards Won</div>
+      </div>
+    </div>
+  </div>
+  <div class="about-visual reveal">
+    <div class="about-img-placeholder">
+      <canvas id="about-canvas"></canvas>
+    </div>
+    <div class="about-corner tl"></div>
+    <div class="about-corner br"></div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-header">
+    <div>
+      <div class="section-label">What We Do</div>
+      <h2 class="section-title reveal">Our <span class="accent">Services</span></h2>
+    </div>
+    <a href="#contact" class="btn-secondary reveal">All Services →</a>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">01</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 48 48"><rect x="4" y="4" width="40" height="32" rx="2"/><path d="M4 28h40M16 40h16M24 36v4"/></svg>
+      </div>
+      <div class="service-name">Web Design & Development</div>
+      <p class="service-desc">Bespoke digital experiences built with cutting-edge technology and obsessive attention to detail.</p>
+      <div class="service-tags">
+        <span class="tag">React</span>
+        <span class="tag">Three.js</span>
+        <span class="tag">GSAP</span>
+      </div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">02</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16"/><path d="M24 8v32M8 24h32M12 12l24 24M36 12L12 36"/></svg>
+      </div>
+      <div class="service-name">Brand Identity</div>
+      <p class="service-desc">Visual identities that are bold, distinctive, and impossible to forget. From logo to full brand systems.</p>
+      <div class="service-tags">
+        <span class="tag">Logo Design</span>
+        <span class="tag">Brand Guide</span>
+        <span class="tag">Typography</span>
+      </div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">03</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 48 48"><path d="M8 36l10-16 8 10 6-8 8 14"/><circle cx="38" cy="12" r="4"/></svg>
+      </div>
+      <div class="service-name">Motion & 3D</div>
+      <p class="service-desc">Cinematic animations and interactive 3D experiences that transform passive visitors into engaged audiences.</p>
+      <div class="service-tags">
+        <span class="tag">WebGL</span>
+        <span class="tag">GLSL</span>
+        <span class="tag">Cinema 4D</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="work-header">
+    <div class="section-label">Portfolio</div>
+    <h2 class="section-title reveal">Selected <span class="accent">Work</span></h2>
+  </div>
+  <div class="work-grid">
+    <div class="work-item">
+      <canvas class="work-canvas" data-type="waves" data-color1="#00f5ff" data-color2="#bf00ff"></canvas>
+      <div class="work-top"><span class="work-year">2024</span><div class="work-dot"></div></div>
+      <div class="work-overlay">
+        <div class="work-cat">Web Experience</div>
+        <div class="work-title">Horizon — Luxury Real Estate</div>
+        <div class="work-desc">Immersive property showcase with 3D tours and cinematic scroll animations.</div>
+      </div>
+      <div class="work-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke-width="1.5"><path d="M2 7h10M8 3l4 4-4 4"/></svg></div>
+    </div>
+    <div class="work-item">
+      <canvas class="work-canvas" data-type="grid" data-color1="#ff0080" data-color2="#ff6b00"></canvas>
+      <div class="work-top"><span class="work-year">2024</span><div class="work-dot" style="background:var(--neon-pink);box-shadow:0 0 8px var(--neon-pink)"></div></div>
+      <div class="work-overlay">
+        <div class="work-cat">Brand Identity</div>
+        <div class="work-title">Aether Studios</div>
+        <div class="work-desc">Full visual identity system for a next-gen creative studio.</div>
+      </div>
+      <div class="work-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke-width="1.5"><path d="M2 7h10M8 3l4 4-4 4"/></svg></div>
+    </div>
+    <div class="work-item">
+      <canvas class="work-canvas" data-type="orbs" data-color1="#bf00ff" data-color2="#00f5ff"></canvas>
+      <div class="work-top"><span class="work-year">2023</span><div class="work-dot" style="background:var(--neon-purple);box-shadow:0 0 8px var(--neon-purple)"></div></div>
+      <div class="work-overlay">
+        <div class="work-cat">3D Experience</div>
+        <div class="work-title">Void — Tech Startup</div>
+        <div class="work-desc">WebGL landing with interactive particle universe.</div>
+      </div>
+      <div class="work-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke-width="1.5"><path d="M2 7h10M8 3l4 4-4 4"/></svg></div>
+    </div>
+    <div class="work-item">
+      <canvas class="work-canvas" data-type="lines" data-color1="#00f5ff" data-color2="#ff0080"></canvas>
+      <div class="work-top"><span class="work-year">2024</span><div class="work-dot"></div></div>
+      <div class="work-overlay">
+        <div class="work-cat">Motion Design</div>
+        <div class="work-title">Pulse Campaign</div>
+        <div class="work-desc">Kinetic brand campaign across digital channels.</div>
+      </div>
+      <div class="work-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke-width="1.5"><path d="M2 7h10M8 3l4 4-4 4"/></svg></div>
+    </div>
+    <div class="work-item">
+      <canvas class="work-canvas" data-type="dots" data-color1="#ff0080" data-color2="#bf00ff"></canvas>
+      <div class="work-top"><span class="work-year">2023</span><div class="work-dot" style="background:var(--neon-pink);box-shadow:0 0 8px var(--neon-pink)"></div></div>
+      <div class="work-overlay">
+        <div class="work-cat">E-Commerce</div>
+        <div class="work-title">Noir Fragrance</div>
+        <div class="work-desc">Luxury fragrance store with dark cinematic aesthetic.</div>
+      </div>
+      <div class="work-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke-width="1.5"><path d="M2 7h10M8 3l4 4-4 4"/></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="section-label" style="justify-content:center;">Let's Talk</div>
+    <h2 class="contact-title reveal">Ready To <span class="accent">Start?</span></h2>
+    <p class="contact-sub reveal">Have a project in mind? We'd love to hear about it. Send us a message and let's create something extraordinary together.</p>
+    <a href="mailto:hello@neonnoir.studio" class="contact-email reveal">hello@neonnoir.studio</a>
+    <div class="contact-socials reveal">
+      <a href="#" class="social-link">Instagram</a>
+      <a href="#" class="social-link">Behance</a>
+      <a href="#" class="social-link">Dribbble</a>
+      <a href="#" class="social-link">LinkedIn</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-text">© 2024 Neon Noir Studio. All rights reserved.</div>
+  <div class="footer-text">Crafted with precision & passion</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let mouseX = 0, mouseY = 0;
+let ringX = 0, ringY = 0;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursor.style.left = mouseX + 'px';
+  cursor.style.top = mouseY + 'px';
+});
+
+function animateCursor() {
+  ringX += (mouseX - ringX) * 0.12;
+  ringY += (mouseY - ringY) * 0.12;
+  cursorRing.style.left = ringX + 'px';
+  cursorRing.style.top = ringY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+document.querySelectorAll('a, button, .work-item, .service-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+    cursor.style.background = 'var(--neon-pink)';
+    cursor.style.boxShadow = '0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink)';
+    cursorRing.style.transform = 'translate(-50%,-50%) scale(1.5)';
+    cursorRing.style.borderColor = 'rgba(255,0,128,0.4)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+    cursor.style.background = 'var(--neon-cyan)';
+    cursor.style.boxShadow = '0 0 15px var(--neon-cyan), 0 0 30px var(--neon-cyan)';
+    cursorRing.style.transform = 'translate(-50%,-50%) scale(1)';
+    cursorRing.style.borderColor = 'rgba(0,245,255,0.4)';
+  });
+});
+
+// THREE.JS PARTICLES
+const canvas = document.getElementById('bg-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 3;
+
+// PARTICLES
+const count = 1800;
+const positions = new Float32Array(count * 3);
+const colors = new Float32Array(count * 3);
+const sizes = new Float32Array(count);
+
+const colorA = new THREE.Color('#003a3f'); // very dim cyan
+const colorB = new THREE.Color('#2a0015'); // very dim pink
+const colorC = new THREE.Color('#1a0030'); // very dim purple
+const palette = [colorA, colorB, colorC];
+
+for (let i = 0; i < count; i++) {
+  positions[i * 3] = (Math.random() - 0.5) * 18;
+  positions[i * 3 + 1] = (Math.random() - 0.5) * 18;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 6 - 4; // push further back
+  const c = palette[Math.floor(Math.random() * palette.length)];
+  colors[i * 3] = c.r;
+  colors[i * 3 + 1] = c.g;
+  colors[i * 3 + 2] = c.b;
+  sizes[i] = Math.random() * 1.5 + 0.3;
+}
+
+const geo = new THREE.BufferGeometry();
+geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+const mat = new THREE.ShaderMaterial({
+  vertexShader: `
+    attribute float size;
+    varying vec3 vColor;
+    void main() {
+      vColor = color;
+      vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+      gl_PointSize = size * (300.0 / -mvPos.z);
+      gl_Position = projectionMatrix * mvPos;
+    }
+  `,
+  fragmentShader: `
+    varying vec3 vColor;
+    void main() {
+      float d = length(gl_PointCoord - vec2(0.5));
+      if (d > 0.5) discard;
+      float alpha = 1.0 - smoothstep(0.2, 0.5, d);
+      gl_FragColor = vec4(vColor, alpha * 0.35);
+    }
+  `,
+  vertexColors: true,
+  transparent: true,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+});
+
+const particles = new THREE.Points(geo, mat);
+scene.add(particles);
+
+// MOUSE PARALLAX
+let targetX = 0, targetY = 0;
+document.addEventListener('mousemove', e => {
+  targetX = (e.clientX / window.innerWidth - 0.5) * 0.5;
+  targetY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+});
+
+let time = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  time += 0.001;
+
+  particles.rotation.y += (targetX - particles.rotation.y) * 0.02;
+  particles.rotation.x += (-targetY - particles.rotation.x) * 0.02;
+  particles.rotation.z = Math.sin(time * 0.3) * 0.1;
+
+  // Animate particle positions slightly
+  const pos = geo.attributes.position.array;
+  for (let i = 0; i < count; i += 30) {
+    pos[i * 3 + 1] += Math.sin(time + i) * 0.001;
+  }
+  geo.attributes.position.needsUpdate = true;
+
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ABOUT CANVAS — Animated Noir Floor Lamp
+(function() {
+  const canvas = document.getElementById('about-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let t = 0;
+
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // --- BACKGROUND ---
+    ctx.fillStyle = '#04040c';
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle grid floor
+    ctx.save();
+    for (let x = 0; x < w; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, h * 0.72);
+      ctx.lineTo(x, h);
+      ctx.strokeStyle = 'rgba(0,245,255,0.03)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    for (let y = h * 0.72; y < h; y += 20) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.strokeStyle = 'rgba(0,245,255,0.025)';
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Floor line
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.72);
+    ctx.lineTo(w, h * 0.72);
+    ctx.strokeStyle = 'rgba(0,245,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Wall reflection strip
+    const wallGrad = ctx.createLinearGradient(0, 0, 0, h * 0.72);
+    wallGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    wallGrad.addColorStop(1, 'rgba(0,245,255,0.02)');
+    ctx.fillStyle = wallGrad;
+    ctx.fillRect(0, 0, w, h * 0.72);
+
+    // --- LAMP GEOMETRY ---
+    const lx = w * 0.52; // lamp center x
+    const baseY = h * 0.72;
+    const poleH = h * 0.52;
+    const poleTop = baseY - poleH;
+
+    // Lamp glow intensity (subtle flicker)
+    const flicker = 1 + Math.sin(t * 13.7) * 0.012 + Math.sin(t * 7.3) * 0.008;
+
+    // --- LIGHT CONE ---
+    const shadeW = w * 0.22;
+    const shadeH = h * 0.13;
+    const shadeY = poleTop + h * 0.01;
+
+    // Main cone of light hitting floor
+    const coneGrad = ctx.createRadialGradient(lx, shadeY + shadeH, 0, lx, shadeY + shadeH, w * 0.55);
+    coneGrad.addColorStop(0,   `rgba(255,220,120,${0.13 * flicker})`);
+    coneGrad.addColorStop(0.3, `rgba(255,180,60,${0.06 * flicker})`);
+    coneGrad.addColorStop(1,   'rgba(255,150,30,0)');
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(lx - shadeW * 0.3, shadeY + shadeH);
+    ctx.lineTo(lx - w * 0.32, baseY + h * 0.05);
+    ctx.lineTo(lx + w * 0.32, baseY + h * 0.05);
+    ctx.lineTo(lx + shadeW * 0.3, shadeY + shadeH);
+    ctx.closePath();
+    ctx.clip();
+    ctx.fillStyle = coneGrad;
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+
+    // Floor pool of light
+    const poolGrad = ctx.createRadialGradient(lx, baseY, 0, lx, baseY, w * 0.3);
+    poolGrad.addColorStop(0,   `rgba(255,200,80,${0.12 * flicker})`);
+    poolGrad.addColorStop(0.5, `rgba(255,160,40,${0.04 * flicker})`);
+    poolGrad.addColorStop(1,   'rgba(255,120,20,0)');
+    ctx.fillStyle = poolGrad;
+    ctx.fillRect(0, baseY - 10, w, h * 0.3);
+
+    // Upward ambient glow from shade top
+    const upGrad = ctx.createRadialGradient(lx, shadeY, 0, lx, shadeY, h * 0.25);
+    upGrad.addColorStop(0,   `rgba(255,230,140,${0.07 * flicker})`);
+    upGrad.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = upGrad;
+    ctx.fillRect(0, 0, w, h * 0.7);
+
+    // Wall glow behind lamp
+    const wallSpot = ctx.createRadialGradient(lx, shadeY - h*0.05, 0, lx, shadeY - h*0.05, w * 0.4);
+    wallSpot.addColorStop(0,   `rgba(255,200,80,${0.06 * flicker})`);
+    wallSpot.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = wallSpot;
+    ctx.fillRect(0, 0, w, h * 0.72);
+
+    // --- SHADE (trapezoid) ---
+    // Shadow/depth on shade
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(lx - shadeW, shadeY);
+    ctx.lineTo(lx + shadeW, shadeY);
+    ctx.lineTo(lx + shadeW * 0.35, shadeY + shadeH);
+    ctx.lineTo(lx - shadeW * 0.35, shadeY + shadeH);
+    ctx.closePath();
+
+    const shadeGrad = ctx.createLinearGradient(lx - shadeW, shadeY, lx + shadeW, shadeY + shadeH);
+    shadeGrad.addColorStop(0,   '#1a1008');
+    shadeGrad.addColorStop(0.3, '#2a1a0a');
+    shadeGrad.addColorStop(0.7, '#1c1206');
+    shadeGrad.addColorStop(1,   '#0e0904');
+    ctx.fillStyle = shadeGrad;
+    ctx.fill();
+
+    // Shade inner glow (from bulb)
+    const innerGrad = ctx.createRadialGradient(lx, shadeY + shadeH * 0.6, 0, lx, shadeY + shadeH * 0.6, shadeW * 0.9);
+    innerGrad.addColorStop(0,   `rgba(255,220,100,${0.22 * flicker})`);
+    innerGrad.addColorStop(0.5, `rgba(255,180,50,${0.06 * flicker})`);
+    innerGrad.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = innerGrad;
+    ctx.fill();
+
+    // Shade border
+    ctx.strokeStyle = 'rgba(80,50,20,0.8)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+
+    // Shade top rim (thin line)
+    ctx.beginPath();
+    ctx.moveTo(lx - shadeW, shadeY);
+    ctx.lineTo(lx + shadeW, shadeY);
+    ctx.strokeStyle = 'rgba(120,80,30,0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Shade bottom opening glow
+    ctx.beginPath();
+    ctx.moveTo(lx - shadeW * 0.35, shadeY + shadeH);
+    ctx.lineTo(lx + shadeW * 0.35, shadeY + shadeH);
+    ctx.strokeStyle = `rgba(255,200,80,${0.5 * flicker})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // --- BULB ---
+    const bulbY = shadeY + shadeH * 0.55;
+    const bulbR = w * 0.018;
+    const bulbGlow = ctx.createRadialGradient(lx, bulbY, 0, lx, bulbY, bulbR * 6);
+    bulbGlow.addColorStop(0,   `rgba(255,240,180,${0.9 * flicker})`);
+    bulbGlow.addColorStop(0.3, `rgba(255,200,80,${0.4 * flicker})`);
+    bulbGlow.addColorStop(1,   'rgba(255,150,30,0)');
+    ctx.fillStyle = bulbGlow;
+    ctx.beginPath();
+    ctx.arc(lx, bulbY, bulbR * 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(lx, bulbY, bulbR, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,250,220,${flicker})`;
+    ctx.fill();
+
+    // --- POLE ---
+    const poleW = w * 0.012;
+    // Pole gradient (metallic dark)
+    const poleGrad = ctx.createLinearGradient(lx - poleW, 0, lx + poleW, 0);
+    poleGrad.addColorStop(0,   '#0d0d0d');
+    poleGrad.addColorStop(0.3, '#2a2a2a');
+    poleGrad.addColorStop(0.6, '#1a1a1a');
+    poleGrad.addColorStop(1,   '#080808');
+
+    ctx.beginPath();
+    ctx.rect(lx - poleW / 2, shadeY + shadeH, poleW, baseY - (shadeY + shadeH));
+    ctx.fillStyle = poleGrad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(60,60,60,0.5)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    // Pole light reflection
+    ctx.beginPath();
+    ctx.rect(lx - poleW * 0.15, shadeY + shadeH + 10, poleW * 0.2, baseY - (shadeY + shadeH) - 20);
+    ctx.fillStyle = `rgba(255,180,50,${0.08 * flicker})`;
+    ctx.fill();
+
+    // --- BASE ---
+    const baseW = w * 0.09;
+    const baseThick = h * 0.018;
+
+    // Base platform
+    ctx.beginPath();
+    ctx.moveTo(lx - baseW, baseY);
+    ctx.lineTo(lx + baseW, baseY);
+    ctx.lineTo(lx + baseW * 0.75, baseY + baseThick);
+    ctx.lineTo(lx - baseW * 0.75, baseY + baseThick);
+    ctx.closePath();
+    const baseGrad = ctx.createLinearGradient(lx - baseW, baseY, lx + baseW, baseY + baseThick);
+    baseGrad.addColorStop(0, '#111111');
+    baseGrad.addColorStop(0.5, '#2a2a2a');
+    baseGrad.addColorStop(1, '#0a0a0a');
+    ctx.fillStyle = baseGrad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(50,50,50,0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Base reflection on floor
+    ctx.beginPath();
+    ctx.ellipse(lx, baseY + baseThick * 0.5, baseW * 0.8, baseThick * 0.3, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fill();
+
+    // --- CORD ---
+    ctx.beginPath();
+    ctx.moveTo(lx + poleW * 0.3, baseY - h * 0.05);
+    ctx.quadraticCurveTo(lx + w * 0.06, baseY + h * 0.01, lx + w * 0.12, baseY + h * 0.005);
+    ctx.strokeStyle = 'rgba(30,30,30,0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // --- SHADOW ON FLOOR ---
+    const shadowGrad = ctx.createRadialGradient(lx + w * 0.05, baseY + 2, 0, lx + w * 0.05, baseY + 2, w * 0.18);
+    shadowGrad.addColorStop(0,   'rgba(0,0,0,0.5)');
+    shadowGrad.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.save();
+    ctx.scale(1, 0.25);
+    ctx.fillStyle = shadowGrad;
+    ctx.beginPath();
+    ctx.ellipse(lx + w * 0.05, (baseY + 2) / 0.25, w * 0.18, w * 0.18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // --- SCANLINES ---
+    for (let y = 0; y < h; y += 3) {
+      ctx.fillStyle = 'rgba(0,0,0,0.07)';
+      ctx.fillRect(0, y, w, 1);
+    }
+
+    // --- VIGNETTE ---
+    const vig = ctx.createRadialGradient(w/2, h/2, h*0.25, w/2, h/2, h*0.9);
+    vig.addColorStop(0, 'rgba(0,0,0,0)');
+    vig.addColorStop(1, 'rgba(0,0,0,0.75)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, w, h);
+
+    // Corner brackets
+    const br = 22;
+    [[0,0,1,1],[w,0,-1,1],[0,h,1,-1],[w,h,-1,-1]].forEach(([cx,cy,dx,dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + dx*br, cy);
+      ctx.lineTo(cx, cy);
+      ctx.lineTo(cx, cy + dy*br);
+      ctx.strokeStyle = 'rgba(0,245,255,0.2)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+
+    t += 0.01;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+(function() {
+  const canvas = document.getElementById('about-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let t = 0;
+
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Metaball blobs
+  const blobs = [
+    { x: 0.5, y: 0.3, vx: 0.0012, vy: 0.0018, r: 0.18, color: [0, 245, 255] },
+    { x: 0.35, y: 0.6, vx: -0.0015, vy: -0.001, r: 0.15, color: [191, 0, 255] },
+    { x: 0.65, y: 0.7, vx: 0.001, vy: -0.0014, r: 0.16, color: [255, 0, 128] },
+    { x: 0.4, y: 0.45, vx: -0.0009, vy: 0.0016, r: 0.12, color: [0, 200, 255] },
+    { x: 0.6, y: 0.35, vx: 0.0013, vy: 0.0011, r: 0.13, color: [180, 0, 255] },
+    { x: 0.5, y: 0.8, vx: -0.0011, vy: -0.0017, r: 0.14, color: [255, 60, 180] },
+  ];
+
+  // Sinusoidal drift on top of linear movement
+  const drifts = blobs.map((_, i) => ({
+    ax: 0.08 + i * 0.02,
+    ay: 0.07 + i * 0.015,
+    px: Math.random() * Math.PI * 2,
+    py: Math.random() * Math.PI * 2,
+  }));
+
+  function draw() {
+    const w = canvas.width, h = canvas.height;
+
+    // Move blobs
+    blobs.forEach((b, i) => {
+      b.x += b.vx;
+      b.y += b.vy;
+      // Bounce off walls with a bit of padding
+      if (b.x < 0.1 || b.x > 0.9) b.vx *= -1;
+      if (b.y < 0.1 || b.y > 0.9) b.vy *= -1;
+      b.x = Math.max(0.08, Math.min(0.92, b.x));
+      b.y = Math.max(0.08, Math.min(0.92, b.y));
+    });
+
+    // Dark base
+    ctx.fillStyle = '#05050e';
+    ctx.fillRect(0, 0, w, h);
+
+    // Draw each blob as a soft radial gradient (layered = metaball feel)
+    blobs.forEach((b, i) => {
+      const bx = b.x * w + Math.sin(t * drifts[i].ax + drifts[i].px) * w * 0.04;
+      const by = b.y * h + Math.cos(t * drifts[i].ay + drifts[i].py) * h * 0.04;
+      const br = b.r * Math.min(w, h) * (1 + Math.sin(t * 0.8 + i) * 0.08);
+
+      const g = ctx.createRadialGradient(bx, by, 0, bx, by, br);
+      const [r, g2, bl] = b.color;
+      g.addColorStop(0,   `rgba(${r},${g2},${bl},0.55)`);
+      g.addColorStop(0.3, `rgba(${r},${g2},${bl},0.25)`);
+      g.addColorStop(0.6, `rgba(${r},${g2},${bl},0.07)`);
+      g.addColorStop(1,   `rgba(${r},${g2},${bl},0)`);
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(bx, by, br, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.globalCompositeOperation = 'source-over';
+
+    // Scanlines for depth
+    for (let y = 0; y < h; y += 3) {
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.fillRect(0, y, w, 1);
+    }
+
+    // Vignette
+    const vig = ctx.createRadialGradient(w/2, h/2, h*0.2, w/2, h/2, h*0.85);
+    vig.addColorStop(0, 'rgba(0,0,0,0)');
+    vig.addColorStop(1, 'rgba(0,0,0,0.7)');
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, w, h);
+
+    // Corner brackets
+    ctx.globalCompositeOperation = 'source-over';
+    const br2 = 22;
+    [[0,0,1,1],[w,0,-1,1],[0,h,1,-1],[w,h,-1,-1]].forEach(([cx,cy,dx,dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + dx*br2, cy);
+      ctx.lineTo(cx, cy);
+      ctx.lineTo(cx, cy + dy*br2);
+      ctx.strokeStyle = 'rgba(0,245,255,0.25)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+
+    t += 0.01;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+function initWorkCanvas(canvas) {
+  const ctx = canvas.getContext('2d');
+  const type = canvas.dataset.type;
+  const c1 = canvas.dataset.color1;
+  const c2 = canvas.dataset.color2;
+  let t = 0;
+  let animId;
+
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  resize();
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return {r,g,b};
+  }
+
+  const rgb1 = hexToRgb(c1);
+  const rgb2 = hexToRgb(c2);
+
+  function draw() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+
+    if (type === 'waves') {
+      // Dark base
+      ctx.fillStyle = '#07070f';
+      ctx.fillRect(0,0,w,h);
+      // Multiple sine waves
+      for (let i = 0; i < 6; i++) {
+        ctx.beginPath();
+        const amp = 30 + i * 15;
+        const freq = 0.008 + i * 0.002;
+        const speed = t * (0.3 + i * 0.1);
+        const yBase = h * 0.3 + i * (h * 0.1);
+        ctx.moveTo(0, yBase);
+        for (let x = 0; x <= w; x += 2) {
+          const y = yBase + Math.sin(x * freq + speed) * amp + Math.sin(x * freq * 2 + speed * 1.3) * (amp * 0.4);
+          ctx.lineTo(x, y);
+        }
+        const alpha = 0.04 + i * 0.03;
+        ctx.strokeStyle = i % 2 === 0
+          ? `rgba(${rgb1.r},${rgb1.g},${rgb1.b},${alpha})`
+          : `rgba(${rgb2.r},${rgb2.g},${rgb2.b},${alpha})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+      // Glow orb
+      const gx = w * 0.3 + Math.sin(t * 0.4) * w * 0.15;
+      const gy = h * 0.4 + Math.cos(t * 0.3) * h * 0.2;
+      const grad = ctx.createRadialGradient(gx,gy,0,gx,gy,w*0.4);
+      grad.addColorStop(0, `rgba(${rgb1.r},${rgb1.g},${rgb1.b},0.12)`);
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,w,h);
+    }
+
+    else if (type === 'grid') {
+      ctx.fillStyle = '#07070f';
+      ctx.fillRect(0,0,w,h);
+      // Perspective grid
+      const vanishX = w / 2 + Math.sin(t * 0.2) * 50;
+      const vanishY = h * 0.45;
+      const lines = 16;
+      for (let i = 0; i < lines; i++) {
+        const x = (i / (lines-1)) * w;
+        ctx.beginPath();
+        ctx.moveTo(x, h);
+        ctx.lineTo(vanishX, vanishY);
+        const alpha = 0.03 + Math.abs(Math.sin(t * 0.5 + i * 0.3)) * 0.06;
+        ctx.strokeStyle = `rgba(${rgb1.r},${rgb1.g},${rgb1.b},${alpha})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      // Horizontal lines receding
+      const hlines = 12;
+      for (let i = 0; i < hlines; i++) {
+        const progress = i / hlines;
+        const y = vanishY + (h - vanishY) * (progress * progress);
+        const xLeft = vanishX - (vanishX) * (progress * progress);
+        const xRight = vanishX + (w - vanishX) * (progress * progress);
+        ctx.beginPath();
+        ctx.moveTo(xLeft, y);
+        ctx.lineTo(xRight, y);
+        const scroll = ((t * 0.3 + progress) % 1);
+        const alpha = 0.02 + scroll * 0.08;
+        ctx.strokeStyle = `rgba(${rgb2.r},${rgb2.g},${rgb2.b},${alpha})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+
+    else if (type === 'orbs') {
+      ctx.fillStyle = '#07070f';
+      ctx.fillRect(0,0,w,h);
+      // Floating orbs
+      const orbs = [
+        { x: 0.3, y: 0.4, r: 0.25, speed: 0.4, phase: 0 },
+        { x: 0.7, y: 0.6, r: 0.2, speed: 0.3, phase: 2 },
+        { x: 0.5, y: 0.3, r: 0.15, speed: 0.5, phase: 4 },
+      ];
+      orbs.forEach((o, i) => {
+        const ox = (o.x + Math.sin(t * o.speed + o.phase) * 0.1) * w;
+        const oy = (o.y + Math.cos(t * o.speed * 0.7 + o.phase) * 0.1) * h;
+        const grad = ctx.createRadialGradient(ox,oy,0,ox,oy,o.r*w);
+        const col = i % 2 === 0 ? rgb1 : rgb2;
+        grad.addColorStop(0, `rgba(${col.r},${col.g},${col.b},0.15)`);
+        grad.addColorStop(0.5, `rgba(${col.r},${col.g},${col.b},0.04)`);
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0,0,w,h);
+      });
+      // Connecting lines between orbs
+      ctx.beginPath();
+      ctx.setLineDash([4,8]);
+      ctx.moveTo(orbs[0].x*w, orbs[0].y*h);
+      orbs.forEach(o => ctx.lineTo((o.x + Math.sin(t*o.speed+o.phase)*0.1)*w, (o.y+Math.cos(t*o.speed*0.7+o.phase)*0.1)*h));
+      ctx.strokeStyle = `rgba(${rgb1.r},${rgb1.g},${rgb1.b},0.08)`;
+      ctx.lineWidth = 1; ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    else if (type === 'lines') {
+      ctx.fillStyle = '#07070f';
+      ctx.fillRect(0,0,w,h);
+      // Diagonal animated lines
+      const count = 20;
+      for (let i = 0; i < count; i++) {
+        const offset = ((i / count) + t * 0.1) % 1;
+        const x = offset * w * 2 - w * 0.5;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x + h * 0.6, h);
+        const alpha = 0.03 + Math.sin(t + i) * 0.02;
+        ctx.strokeStyle = i % 3 === 0
+          ? `rgba(${rgb1.r},${rgb1.g},${rgb1.b},${Math.max(0,alpha)})`
+          : `rgba(${rgb2.r},${rgb2.g},${rgb2.b},${Math.max(0,alpha * 0.6)})`;
+        ctx.lineWidth = i % 4 === 0 ? 2 : 1;
+        ctx.stroke();
+      }
+      // Scanline effect
+      for (let y = 0; y < h; y += 3) {
+        ctx.fillStyle = 'rgba(0,0,0,0.08)';
+        ctx.fillRect(0, y, w, 1);
+      }
+    }
+
+    else if (type === 'dots') {
+      ctx.fillStyle = '#07070f';
+      ctx.fillRect(0,0,w,h);
+      // Dot grid with wave distortion
+      const cols = 18, rows = 12;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const bx = (col / (cols-1)) * w;
+          const by = (row / (rows-1)) * h;
+          const dist = Math.sqrt((col/cols-0.5)**2 + (row/rows-0.5)**2);
+          const wave = Math.sin(dist * 8 - t * 1.5) * 0.5 + 0.5;
+          const size = wave * 3 + 0.5;
+          const alpha = wave * 0.2 + 0.03;
+          const col2 = (col + row) % 2 === 0 ? rgb1 : rgb2;
+          ctx.beginPath();
+          ctx.arc(bx, by, size, 0, Math.PI*2);
+          ctx.fillStyle = `rgba(${col2.r},${col2.g},${col2.b},${alpha})`;
+          ctx.fill();
+        }
+      }
+    }
+
+    t += 0.015;
+    animId = requestAnimationFrame(draw);
+  }
+
+  draw();
+  return () => cancelAnimationFrame(animId);
+}
+
+// Init all work canvases
+document.querySelectorAll('.work-canvas').forEach(c => initWorkCanvas(c));
+
+// Resize observer for canvases
+const ro = new ResizeObserver(() => {
+  document.querySelectorAll('.work-canvas').forEach(c => {
+    c.width = c.offsetWidth;
+    c.height = c.offsetHeight;
+  });
+});
+document.querySelectorAll('.work-item').forEach(el => ro.observe(el));
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
